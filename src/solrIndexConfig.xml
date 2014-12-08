@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<solrIndexConfig>
+	
+	<!--
+		使用说明：
+		1、新添加一个项目时,先确认<dataSources>标签中是否已经提供了对应到数据源配置信息.若没有配置则按照示例新增一个,要求name属性不能重复.
+		2、在<documents>元素下新增对应的<document>元素.
+			task_delay:tomcat启动多久以后开始自动写索引,默认值10000毫秒(仅针对于该配置文件中配置的项目).
+			task_period:每隔多久扫描一次任务表,默认值5000毫秒(仅针对于该配置文件中配置的项目).
+			autoCommit:是否自动提交,默认值为false;当确认已经配置过自动提交时,再把该属性配置为true
+			showSQL:是否显示SQL语句,默认值false,建议在测试开发阶段开启,上线后可以关闭。
+			showDebug:是否显示调试信息,默认值false,建议在测试开发阶段开启,上线后可以关闭。
+		3、<document>元素属性说明：
+			name:当前document的唯一性标识.
+			core:对应的Solr中的核心名称.
+			taskTableName:需要监测的数据源中的哪张表.
+			dataSource:指定数据源,对应<dataSource>标签中的name.
+			onUse:该document是否启用.当配置文件中有多个document时,有些document并不会用到,此时将该属性置为false即可.
+		4、<entity>元素可以出现嵌套,嵌套时说明子级entity依赖于父级的查询结果.
+		5、<entity>元素属性说明：
+			type：指定当前entity的类型,默认情况下不需要指定,当该entity对应动态字段时指定.指定时需要在dynamicField.properties中配置.可以扩展.
+			query:当前entity中的字段的查询语句.缺省时从<document>中taskTableName指定的表中查询所有字段.
+			keyColumn:扩展字段.默认情况下不需要指定,只有在处理动态字段时使用,依赖于处理类的具体实现.
+			valueColumn:扩展字段.默认情况下不需要指定,只有在处理动态字段时使用,依赖于处理类的具体实现.
+			fieldPrefix:扩展字段.默认情况下不需要指定,只有在处理动态字段时使用(若缺省则使用EpsDynamic_`作为前缀),用于指定动态字段在Solr中的前缀.
+	-->
+	
+	<!--定时器设定-->
+	
+	
+	<!--datasource config-->
+	<dataSources>
+		<dataSource name="gzpg" driverClassName="oracle.jdbc.driver.OracleDriver" url="jdbc:oracle:thin:@192.168.1.107:1521:orcl" username="eps_gzpg" password="eps_gzpg" />
+		<dataSource name="shangwu" driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://192.168.1.107:3306/commercialpress2_cms?characterEncoding=UTF-8" username="eps" password="Shangyuan123" />
+		<dataSource name="sheying" driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://192.168.1.107:3306/epscms_sheying?characterEncoding=UTF-8" username="eps" password="Shangyuan123" />
+	</dataSources>
+	
+	<!--document config-->
+	<documents task_delay="1000000000" task_period="5000" autoCommit="true" showSQL="true" showDebug="false">
+		<!--a document refer to a Solr Core-->
+		<!-- 可选属性：fetchSize="200" 系统提供默认值200,即每次从任务表中读取多少条数据 -->
+		<!--onUse="true" 该document是否启用,主要是涉及配置多个的时候用于控制是否开启的开关-->
+		<document name="epsdemo" core="epsdemo" taskTableName="eps_solr_task"  dataSource="gzpg" onUse="false" fetchSize="200">
+			<entity>
+				<field name="RES_THEMEID" column="RES_THEMEID" boost="1.0f"/>
+				<field name="RES_THEMELIBID" column="RES_THEMELIBID" boost="1.0f"/>
+				<field name="SYS_RESID" column="SYS_RESID" boost="1.0f"/>
+				<field name="SYS_RESLIB" column="SYS_RESLIB" boost="1.0f"/>
+				<field name="ID" column="SOLR_PK" boost="1.0f"/>
+				<entity query="select  SYS_ACTIVITYID,SYS_TOPIC,SYS_ACTIVITYNAME,SYS_CREATETIME,RES_SOURCE,RES_BOOKRESLIBID,RES_BOOKRESID,SYS_FLOWID,SYS_FVID,SYS_ISLOCKED,SYS_LASTMODI_TIME,SYS_LOCKUSERNAME,RES_ALIAS,EPS_CATTYPE,RES_SECONDENAME,RES_XHTML,RES_XMLFILE,RES_XMLID,RES_CATID,RES_INDEXPICID,RES_PICCOUNT,RES_THEMEID,RES_THEMELIBID from eps_reslib_3 res ,EPS_EPUB_CAT cat where SYS_RESID=${SYS_RESID} and SYS_RESLIB=${SYS_RESLIB} and RES_SOURCE != '新编药歌500解'and cat.EPS_ITEM_RESID = SYS_RESID and cat.EPS_ITEM_RESLIBID = SYS_RESLIB">
+					<field name="SYS_ACTIVITYID" column="SYS_ACTIVITYID" boost="1.0f"/>
+					<field name="SYS_TOPIC" column="SYS_TOPIC" boost="1.0f"/>
+					<field name="SYS_ACTIVITYNAME" column="SYS_ACTIVITYNAME" boost="1.0f"/>
+					<field name="SYS_CREATETIME" column="SYS_CREATETIME" boost="1.0f"/>
+					<field name="RES_SOURCE" column="RES_SOURCE" boost="1.0f"/>
+					<field name="RES_BOOKRESLIBID" column="RES_BOOKRESLIBID" boost="1.0f"/>
+					<field name="RES_BOOKRESID" column="RES_BOOKRESID" boost="1.0f"/>
+					<field name="SYS_FLOWID" column="SYS_FLOWID" boost="1.0f"/>
+					<field name="SYS_FVID" column="SYS_FVID" boost="1.0f"/>
+					<field name="SYS_ISLOCKED" column="SYS_ISLOCKED" boost="1.0f"/>
+					<field name="SYS_LASTMODI_TIME" column="SYS_LASTMODI_TIME" boost="1.0f"/>
+					<field name="SYS_LOCKUSERNAME" column="SYS_LOCKUSERNAME" boost="1.0f"/>
+					<field name="RES_ALIAS" column="RES_ALIAS" boost="1.0f"/>
+					<field name="EPS_CATTYPE" column="EPS_CATTYPE" boost="1.0f"/>
+					<field name="RES_SECONDENAME" column="RES_SECONDENAME" boost="1.0f"/>
+					<field name="RES_XHTML" column="RES_XHTML" boost="1.0f"/>
+					<field name="RES_XMLFILE" column="RES_XMLFILE" boost="1.0f"/>
+					<field name="RES_XMLID" column="RES_XMLID" boost="1.0f"/>
+					<field name="RES_CATID" column="RES_CATID" boost="1.0f"/>
+					<field name="RES_INDEXPICID" column="RES_INDEXPICID" boost="1.0f"/>
+					<field name="RES_PICCOUNT" column="RES_PICCOUNT" boost="1.0f"/>
+				</entity>
+				<entity query="select DISTINCT EPS_INDEX_ENNAME from EPS_EPUB_RESINDEX where EPS_ITEM_RESID=${SYS_RESID} and EPS_ITEM_RESLIBID=${SYS_RESLIB} ORDER BY EPS_INDEX_ENNAME DESC">
+					<field name="EPS_INDEX_ENNAME" column="EPS_INDEX_ENNAME" boost="1.0f"/>
+				</entity>
+				
+				<!-- type属性用于指定如何处理动态字段,默认动态前缀为 EpsDynamic_`  -->
+				<entity type="EpsCatDynamicEntity" 
+					query="select EPS_INDEX_TABLENAME,EPS_INDEX_CATNAME from EPS_EPUB_RESINDEX where (EPS_THEME_RESID=${RES_THEMEID} and EPS_INDEX_CNNAME='${SYS_TOPIC}')" 
+					keyColumn="EPS_INDEX_TABLENAME" 
+					valueColumn="EPS_INDEX_CATNAME" 
+					fieldPrefix="EpsDynamic_`" />
+					
+			</entity>
+			
+		</document>
+		
+		<document name="shangwu" core="shangwu" taskTableName="eps_solr_task"  dataSource="shangwu" onUse="false">
+			<entity>
+			
+				<field name="ID" column="CONTENT_ID" boost="1.0f"/>
+				
+				<entity query="SELECT * FROM JC_CONTENT WHERE CONTENT_ID = ${ID}">
+					<field name="CHANNEL_ID" column="CHANNEL_ID" boost="1.0f"/>
+					<field name="SITE_ID" column="SITE_ID" boost="1.0f"/>
+					<field name="USER_ID" column="USER_ID" boost="1.0f"/>
+					<field name="MODEL_ID" column="MODEL_ID" boost="1.0f"/>
+					<field name="STATUS" column="STATUS" boost="1.0f"/>
+					
+					<entity query="SELECT * FROM JC_CHANNEL_EXT WHERE CHANNEL_ID = ${CHANNEL_ID}">
+						<field name="BOOKNAME" column="CHANNEL_NAME" boost="1.0f"/>
+					</entity>
+					
+				</entity>
+				
+				<entity query="SELECT * FROM JC_CONTENT_EXT WHERE CONTENT_ID = ${ID}">
+					<field name="TITLE" column="TITLE" boost="1.0f"/>
+				</entity>
+				
+				<entity query="SELECT TXT FROM JC_CONTENT_TXT WHERE CONTENT_ID = ${ID}">
+					<field name="CONTENT" column="TXT" boost="1.0f"/>
+				</entity>
+				
+			</entity>
+		</document>
+		
+		<document name="sheying" core="sheying" taskTableName="eps_solr_task"  dataSource="sheying" onUse="false" fetchSize="200">
+			<entity>
+				<field name="ID" column="CONTENT_ID" boost="1.0f"/>
+				<entity query="SELECT * FROM JC_CONTENT WHERE CONTENT_ID = ${ID}">
+					<field name="CHANNEL_ID" column="CHANNEL_ID" boost="1.0f"/>
+					<field name="SITE_ID" column="SITE_ID" boost="1.0f"/>
+					<field name="USER_ID" column="USER_ID" boost="1.0f"/>
+					<field name="MODEL_ID" column="MODEL_ID" boost="1.0f"/>
+					<field name="STATUS" column="STATUS" boost="1.0f"/>
+					<entity query="SELECT * FROM JC_CHANNEL_EXT WHERE CHANNEL_ID = ${CHANNEL_ID}">
+						<field name="BOOKNAME" column="CHANNEL_NAME" boost="1.0f"/>
+					</entity>
+				</entity>
+				<entity query="SELECT * FROM JC_CONTENT_EXT WHERE CONTENT_ID = ${ID}">
+					<field name="TITLE" column="TITLE" boost="1.0f"/>
+				</entity>
+				<entity query="SELECT TXT FROM JC_CONTENT_TXT WHERE CONTENT_ID = ${ID}">
+					<field name="CONTENT" column="TXT" boost="1.0f"/>
+				</entity>
+				<entity query="SELECT * FROM EPS_CONTENT_CAT cc LEFT JOIN EPS_CAT ec ON cc.cat_id = ec.catID and cc.content_id = ${ID}" >
+					<field name="catName" column="catName" boost="1.0f"/>
+					<field name="catId" column="catID" boost="1.0f"/>
+					<field name="topCatId" column="parentID" boost="1.0f"/>
+				</entity>
+			</entity>
+		</document>
+		
+		<document name="nongye" core="nongye" taskTableName="eps_solr_task"  dataSource="nongye" onUse="true" fetchSize="200">
+			<entity>
+				<field name="RES_THEMEID" column="RES_THEMEID" boost="1.0f"/>
+				<field name="RES_THEMELIBID" column="RES_THEMELIBID" boost="1.0f"/>
+				<field name="SYS_RESID" column="SYS_RESID" boost="1.0f"/>
+				<field name="SYS_RESLIB" column="SYS_RESLIB" boost="1.0f"/>
+				<field name="ID" column="SOLR_PK" boost="1.0f"/>
+				<entity query="select SYS_ACTIVITYID,SYS_TOPIC,SYS_ACTIVITYNAME,SYS_CREATETIME,RES_SOURCE,RES_BOOKRESLIBID,RES_BOOKRESID,SYS_FLOWID,SYS_FVID,SYS_ISLOCKED,SYS_LASTMODI_TIME,SYS_LOCKUSERNAME,RES_ALIAS,RES_SECONDENAME,RES_XHTML,RES_XMLFILE,RES_XMLID,RES_CATID,RES_INDEXPICID,RES_PICCOUNT,RES_THEMEID,RES_THEMELIBID,RES_DELETEFLAG,RES_RECOMMENDFLAG,RES_PINYIN,RES_TYPE from eps_reslib_3 where SYS_RESID=${SYS_RESID} and SYS_RESLIB=${SYS_RESLIB}">
+					<field name="SYS_TOPIC" column="SYS_TOPIC" boost="1.0f"/>
+					<entity query="select SYS_ACTIVITYID,SYS_TOPIC,SYS_ACTIVITYNAME,SYS_CREATETIME,RES_SOURCE,RES_BOOKRESLIBID,RES_BOOKRESID,SYS_FLOWID,SYS_FVID,SYS_ISLOCKED,SYS_LASTMODI_TIME,SYS_LOCKUSERNAME,RES_ALIAS,RES_SECONDENAME,RES_XHTML,RES_XMLFILE,RES_XMLID,RES_CATID,RES_INDEXPICID,RES_PICCOUNT,RES_THEMEID,RES_THEMELIBID,RES_DELETEFLAG,RES_RECOMMENDFLAG,RES_PINYIN,RES_TYPE from eps_reslib_3 where SYS_TOPIC='${SYS_TOPIC}'">
+						<field name="SYS_ACTIVITYID" column="SYS_ACTIVITYID" boost="1.0f"/>
+						<field name="SYS_TOPIC" column="SYS_TOPIC" boost="1.0f"/>
+						<field name="SYS_ACTIVITYNAME" column="SYS_ACTIVITYNAME" boost="1.0f"/>
+						<field name="SYS_CREATETIME" column="SYS_CREATETIME" boost="1.0f"/>
+						<field name="RES_SOURCE" column="RES_SOURCE" boost="1.0f"/>
+						<field name="RES_BOOKRESLIBID" column="RES_BOOKRESLIBID" boost="1.0f"/>
+						<field name="RES_BOOKRESID" column="RES_BOOKRESID" boost="1.0f"/>
+						<field name="SYS_FLOWID" column="SYS_FLOWID" boost="1.0f"/>
+						<field name="SYS_FVID" column="SYS_FVID" boost="1.0f"/>
+						<field name="SYS_ISLOCKED" column="SYS_ISLOCKED" boost="1.0f"/>
+						<field name="SYS_LASTMODI_TIME" column="SYS_LASTMODI_TIME" boost="1.0f"/>
+						<field name="SYS_LOCKUSERNAME" column="SYS_LOCKUSERNAME" boost="1.0f"/>
+						<field name="RES_ALIAS" column="RES_ALIAS" boost="1.0f"/>
+						<field name="EPS_CATTYPE" column="EPS_CATTYPE" boost="1.0f"/>
+						<field name="RES_SECONDENAME" column="RES_SECONDENAME" boost="1.0f"/>
+						<field name="RES_XHTML" column="RES_XHTML" boost="1.0f"/>
+						<field name="RES_XMLFILE" column="RES_XMLFILE" boost="1.0f"/>
+						<field name="RES_XMLID" column="RES_XMLID" boost="1.0f"/>
+						<field name="RES_CATID" column="RES_CATID" boost="1.0f"/>
+						<field name="RES_INDEXPICID" column="RES_INDEXPICID" boost="1.0f"/>
+						<field name="RES_PICCOUNT" column="RES_PICCOUNT" boost="1.0f"/>
+						<field name="RES_DELETEFLAG" column="RES_DELETEFLAG" boost="1.0f"/>
+						<field name="RES_RECOMMENDFLAG" column="RES_RECOMMENDFLAG" boost="1.0f"/>
+						<field name="RES_PINYIN" column="RES_PINYIN" boost="1.0f"/>
+						<field name="RES_TYPE" column="RES_TYPE" boost="1.0f"/>
+					</entity>
+				</entity>
+				
+				<entity query="select DISTINCT EPS_INDEX_ENNAME from EPS_EPUB_RESINDEX where EPS_ITEM_RESID=${SYS_RESID} and EPS_ITEM_RESLIBID=${SYS_RESLIB} ORDER BY EPS_INDEX_ENNAME DESC">
+					<field name="EPS_INDEX_ENNAME" column="EPS_INDEX_ENNAME" boost="1.0f"/>
+				</entity>
+				<entity query="select EPS_INDEX_CATID,EPS_INDEX_CASCADEID,EPS_INDEX_ROOTCATID from EPS_EPUB_RESINDEX where EPS_ITEM_RESID=${SYS_RESID} and EPS_ITEM_RESLIBID=${SYS_RESLIB}">
+					<field name="EPS_INDEX_CATID" column="EPS_INDEX_CATID" boost="1.0f"/>
+					<field name="EPS_INDEX_CASCADEID" column="EPS_INDEX_CASCADEID" boost="1.0f"/>
+					<field name="EPS_INDEX_ROOTCATID" column="EPS_INDEX_ROOTCATID" boost="1.0f"/>
+				</entity>
+					
+					
+				<!-- type属性用于指定如何处理动态字段,默认动态前缀为 EpsDynamic_`  -->
+				<entity type="EpsCatDynamicEntity" 
+					query="select EPS_INDEX_TABLENAME,EPS_INDEX_CATNAME from EPS_EPUB_RESINDEX where (EPS_THEME_RESID=${RES_THEMEID} and EPS_INDEX_CNNAME='${SYS_TOPIC}')" 
+					keyColumn="EPS_INDEX_TABLENAME" 
+					valueColumn="EPS_INDEX_CATNAME" 
+					fieldPrefix="EpsDynamic_`" />
+					
+			</entity>
+			
+		</document>
+		
+    </documents>
+    
+</solrIndexConfig>
+

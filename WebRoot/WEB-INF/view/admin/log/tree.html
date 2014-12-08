@@ -1,0 +1,13 @@
+<#if solrFile??>
+[
+	<#list solrFile.childs as file>
+		{
+			"id":"${file.name}",
+			"pid":"<#if file.parent??>${file.parent.name}<#else>null</#if>",
+			"name":"${file.name}",
+			"root":"${file.relativeRoot!}",
+			"isParent":"${file.directory}"
+		}<#if file_has_next>,</#if>
+	</#list>
+]
+</#if>

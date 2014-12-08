@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>list.html</title>
+	<#include "/view/head.html"/>
+	<link href="${base}/res/css/layout_loglist.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" href="${base}/thirdparty/ztree/style/zTreeStyle/zTreeStyle.css" type="text/css">
+	<script type="text/javascript" src="${base}/thirdparty/ztree/jquery.ztree.core-3.5.min.js"></script>
+	<script type="text/javascript" src="${base}/thirdparty/ztree/jquery.ztree.excheck-3.5.js"></script>
+	<script type="text/javascript" src="${base}/thirdparty/ztree/jquery.ztree.exedit-3.5.js"></script>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<script type="text/javascript">
+			var setting = {
+				edit: {
+					enable: false,
+					removeTitle: "移动",
+					renameTitle: "重命名",
+					showRemoveBtn: false,
+					showRenameBtn: false
+				},
+				async: {
+					enable: true,
+					type: "POST",
+					dataType: "json",
+					url:"tree.do",
+					autoParam:["root"]
+				},
+				data: {
+					keep: {
+						parent: true
+					},
+					simpleData: {
+						enable: true
+					}
+				},
+				callback: {
+					onClick: zTreeOnClick
+				}
+			};
+			
+			function zTreeOnClick(event, treeId, treeNode) {
+				if(!treeNode.isParent) {
+					//右侧显示该文件的内容
+					$.ajax({
+					   type: "POST",
+					   url: "showLogText.do",
+					   data: "name="+treeNode.root,
+					   success: function(html){
+					   		$("#content").html(html);
+					   }
+					});
+				}
+			}
+			
+			$(document).ready(function() {
+				$.ajax({
+				   type: "POST",
+				   url: "tree.do",
+				   dataType: "json",
+				   success: function(json){
+					 $.fn.zTree.init($("#ztree"), setting, json);
+				   },
+				   error: function(XMLHttpRequest, textStatus, errorThrown) {
+				   	    alert(errorThrown);
+				   }
+				});
+			});
+			
+	</script>
+  </head>
+  
+  <body>
+  		<div id="container">
+		  <div id="header">Solr Logging  <a href="${base}/epsdemo/admin/">返回首页</a></div>
+		  <div id="mainContent">
+		    <div id="sidebar">
+		    	左侧目录树<br/>
+				<ul id="ztree" class="ztree"></ul>
+			</div>
+		    <div id="content">右侧显示文本</div>
+		  </div>
+		  <div id="footer">This is the footer</div>
+		</div>
+  </body>
+</html>
