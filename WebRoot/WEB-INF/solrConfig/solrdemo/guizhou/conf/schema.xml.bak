@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<schema name="example" version="1.5">
+
+  <types>   
+	<!--some default field types-->
+	<fieldtype name="string"  class="solr.StrField" sortMissingLast="true" omitNorms="true"/>
+	<fieldType name="boolean" class="solr.BoolField" sortMissingLast="true"/>
+	<fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="double" class="solr.TrieDoubleField" precisionStep="0" positionIncrementGap="0"/>
+	<fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+
+
+	<fieldType name="text_ika" positionIncrementGap="100" class="solr.TextField">
+		<analyzer type="index">
+			<tokenizer class="org.wltea.analyzer.solr.IKTokenizerFactory"/>
+			<filter class="solr.StopFilterFactory" enablePositionIncrements="true" words="stopwords.txt" ignoreCase="true"/>
+			<filter class="solr.WordDelimiterFilterFactory" splitOnCaseChange="1" catenateAll="0" catenateNumbers="1" catenateWords="1" generateNumberParts="1" generateWordParts="1"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.EnglishPorterFilterFactory" protected="protwords.txt"/>
+			<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+		</analyzer>
+		<analyzer type="query">
+			<tokenizer class="org.wltea.analyzer.solr.IKTokenizerFactory"/>
+			<filter class="solr.SynonymFilterFactory" ignoreCase="true" expand="true" synonyms="synonyms.txt"/>
+			<filter class="solr.StopFilterFactory" words="stopwords.txt" ignoreCase="true"/>
+			<filter class="solr.WordDelimiterFilterFactory" splitOnCaseChange="1" catenateAll="0" catenateNumbers="0" catenateWords="0" generateNumberParts="1" generateWordParts="1"/>
+			<filter class="solr.LowerCaseFilterFactory"/>
+			<filter class="solr.EnglishPorterFilterFactory" protected="protwords.txt"/>
+			<filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
+		</analyzer>
+	</fieldType>
+
+	
+	<fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
+      <analyzer>
+        <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+      </analyzer>
+    </fieldType>
+
+
+	<fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <!-- in this example, we will only use synonyms at query time
+        <filter class="solr.SynonymFilterFactory" synonyms="index_synonyms.txt" ignoreCase="true" expand="false"/>
+        -->
+        <!-- Case insensitive stop word removal.
+          add enablePositionIncrements=true in both the index and query
+          analyzers to leave a 'gap' for more accurate phrase queries.
+        -->
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="lang/stopwords_en.txt"
+                enablePositionIncrements="true"
+                />
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.EnglishPossessiveFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
+	-->
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms.txt" ignoreCase="true" expand="true"/>
+        <filter class="solr.StopFilterFactory"
+                ignoreCase="true"
+                words="lang/stopwords_en.txt"
+                enablePositionIncrements="true"
+                />
+        <filter class="solr.LowerCaseFilterFactory"/>
+	<filter class="solr.EnglishPossessiveFilterFactory"/>
+        <filter class="solr.KeywordMarkerFilterFactory" protected="protwords.txt"/>
+	<!-- Optionally you may want to use this less aggressive stemmer instead of PorterStemFilterFactory:
+        <filter class="solr.EnglishMinimalStemFilterFactory"/>
+	-->
+        <filter class="solr.PorterStemFilterFactory"/>
+      </analyzer>
+    </fieldType>
+   
+ </types>
+
+ <fields>
+	<!--from 102-->
+	<field name="GZPG_ID" type="string" indexed="true" stored="true" required="true"/>
+
+	<!--from 001-->
+	<field name="SYS_RESID" type="string" indexed="true" stored="true"/>
+	<field name="SYS_RESLIB" type="string" indexed="true" stored="true"/>
+
+	<!--from 101-->
+	<field name="SYS_ACTIVITYID" type="string" indexed="true" stored="true"/>
+	<field name="SYS_ACTIVITYNAME" type="string" indexed="true" stored="true"/>
+	<field name="SYS_CREATETIME" type="string" indexed="true" stored="true"/>
+	<field name="SYS_FLOWID" type="string" indexed="true" stored="true"/>
+	<field name="SYS_FVID" type="string" indexed="true" stored="true"/>
+	<field name="SYS_ISLOCKED" type="string" indexed="true" stored="true"/>
+	<field name="SYS_LASTMODI_TIME" type="string" indexed="true" stored="true" />
+	<field name="SYS_LOCKUSERNAME" type="string" indexed="true" stored="true"/>
+	<field name="RES_THEMEID" type="string" indexed="true" stored="true"/>
+	<field name="RES_THEMELIBID" type="string" indexed="true" stored="true"/>
+	<field name="SYS_TOPIC" type="text_ika" indexed="true" stored="true" omitNorms="false"/>
+	<field name="RES_ALIAS" type="text_ws" indexed="true" stored="true" omitNorms="false"/>
+	<field name="RES_SECONDENAME" type="string" indexed="true" stored="true"/>
+	<field name="RES_XHTML" type="text_ika" indexed="true" stored="true"/>
+	<field name="RES_XMLFILE" type="string" indexed="true" stored="true"/>
+	<field name="RES_XMLID" type="string" indexed="true" stored="true"/>
+	<field name="RES_CATID" type="string" indexed="true" stored="true"/>
+	<field name="RES_INDEXPICID" type="string" indexed="true" stored="true"/>
+	<field name="RES_PICCOUNT" type="string" indexed="true" stored="true"/> 
+	<field name="RES_BOOKRESLIBID" type="string" indexed="true" stored="true" />
+	<field name="RES_BOOKRESID" type="string" indexed="true" stored="true"/>
+	<field name="RES_SOURCE" type="string" indexed="true" stored="true"/>
+	<field name="EPS_CATTYPE" type="string" indexed="true" stored="true"/>
+	<field name="EPS_INDEX_ENNAME" type="string" indexed="true" stored="true"/>
+
+
+	<dynamicField name="*_s" type="string" indexed="true" stored="true"/>
+	 
+</fields>
+
+<!--must named GZPG_ID-->
+<uniqueKey>GZPG_ID</uniqueKey>
+
+
+
+</schema>

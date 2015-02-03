@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config>
+  <luceneMatchVersion>LUCENE_36</luceneMatchVersion>
+ 
+  <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}"/>
+
+  <updateHandler class="solr.DirectUpdateHandler2" />
+
+
+  <requestDispatcher handleSelect="true" >
+    <requestParsers enableRemoteStreaming="false" multipartUploadLimitInKB="2048" />
+  </requestDispatcher>
+
+  
+<searchComponent name="suggest" class="solr.SpellCheckComponent">  
+  <lst name="spellchecker">  
+    <str name="name">suggest</str>  
+    <str name="classname">org.apache.solr.spelling.suggest.Suggester</str>  
+    <str name="lookupImpl">org.apache.solr.spelling.suggest.tst.TSTLookup</str>  
+    <str name="field">name_autocomplete</str>  
+  </lst>  
+</searchComponent>  
+
+<requestHandler name="/suggest" class="org.apache.solr.handler.component.SearchHandler">  
+  <lst name="defaults">  
+    <str name="spellcheck">true</str>  
+    <str name="spellcheck.dictionary">suggest</str>  
+    <str name="spellcheck.count">10</str>  
+  </lst>  
+  <arr name="components">  
+    <str>suggest</str>  
+  </arr>  
+</requestHandler>  
+  
+  <requestHandler name="standard" class="solr.StandardRequestHandler" default="true" />
+  <requestHandler name="/update" class="solr.XmlUpdateRequestHandler" />
+  <requestHandler name="/admin/" class="org.apache.solr.handler.admin.AdminHandlers" />
+      
+  <!-- config for the admin interface --> 
+  <admin>
+    <defaultQuery>*:*</defaultQuery>
+  </admin>
+
+</config>
